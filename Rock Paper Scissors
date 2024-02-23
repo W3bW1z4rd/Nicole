@@ -1,0 +1,158 @@
+echo "# Nicole" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/W3bW1z4rd/Nicole.git
+git push -u origin main
+
+import pygame
+import random
+import sys
+
+# initialize pygame
+pygame.init()
+
+# constants for screen dimensions and frames per second
+WIDTH = 600
+HEIGHT = 500
+FPS = 30
+
+# define colors using rgb values
+WHITE = (255, 255, 255)
+BLACK = (38, 38, 38)
+GREEN = (156, 185, 70)
+RED = (255, 43, 51)
+
+# set up the game window
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Rock, Paper, Scissors!")
+
+# load images for rock, paper, and scissors
+rock_img = pygame.image.load("ROCK.png")
+paper_img = pygame.image.load("PAPER.png")
+scissors_img = pygame.image.load("SCISSORS.png")
+
+# resize images to a consistent size
+rock_img = pygame.transform.scale(rock_img, (100, 100))
+paper_img = pygame.transform.scale(paper_img, (100, 100))
+scissors_img = pygame.transform.scale(scissors_img, (100, 100))
+
+# map key codes to images
+key_to_img = {
+    pygame.K_r: rock_img,
+    pygame.K_p: paper_img,
+    pygame.K_s: scissors_img,
+}
+
+# map key codes to choices
+key_to_choice = {
+    pygame.K_r: "rock",
+    pygame.K_p: "paper",
+    pygame.K_s: "scissors",
+}
+
+# font for text
+font = pygame.font.SysFont(None, 36)
+
+
+# function to draw text on the screen
+def draw_text(text, font, color, surface, x, y):
+  text_obj = font.render(text, True, color)
+  text_rect = text_obj.get_rect()
+  text_rect.center = (x, y)
+  surface.blit(text_obj, text_rect)
+
+
+# function for the screen where the user selects rock, paper, or scissors
+def image_screen():
+  while True:
+    screen.fill(WHITE)
+
+    # load the background image for the selection screen
+    background_image = pygame.image.load('RPS.jpeg')
+    background_image = pygame.transform.scale(background_image,
+                                              (WIDTH, HEIGHT))
+    screen.blit(background_image, (0, 0))
+
+    # calculate positions for the images in a triangle shape
+    center_x = WIDTH // 2
+    center_y = HEIGHT // 2
+    image_size = 100  # adjust size as needed
+
+    # calculate positions for rock, paper, and scissors images
+    rock_pos = (center_x - image_size // 2, center_y - image_size)
+    paper_pos = (center_x - image_size // 2 - image_size, center_y)
+    scissors_pos = (center_x + image_size // 2, center_y)
+
+    # display images
+    screen.blit(rock_img, rock_pos)
+    screen.blit(paper_img, paper_pos)
+    screen.blit(scissors_img, scissors_pos)
+
+    pygame.display.update()
+
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        pygame.quit()
+        sys.exit()
+      elif event.type == pygame.MOUSEBUTTONDOWN:
+        mouse_pos = pygame.mouse.get_pos()
+        # check if mouse click is on the images
+        if rock_pos[0] <= mouse_pos[0] <= rock_pos[0] + image_size and rock_pos[
+            1] <= mouse_pos[1] <= rock_pos[1] + image_size:
+          return pygame.K_r
+        elif paper_pos[0] <= mouse_pos[
+            0] <= paper_pos[0] + image_size and paper_pos[1] <= mouse_pos[
+                1] <= paper_pos[1] + image_size:
+          return pygame.K_p
+        elif scissors_pos[0] <= mouse_pos[
+            0] <= scissors_pos[0] + image_size and scissors_pos[
+                1] <= mouse_pos[1] <= scissors_pos[1] + image_size:
+          return pygame.K_s
+
+
+# function to evaluate the user's choice and determine the winner
+def evaluate_choice(user_choice, computer_choice):
+  background_image = pygame.image.load('RPS.jpeg')
+  # determine the winner
+  if user_choice == computer_choice:
+    result = "It's a tie!"
+  elif ((user_choice == pygame.K_r and computer_choice == pygame.K_s)
+        or (user_choice == pygame.K_p and computer_choice == pygame.K_r)
+        or (user_choice == pygame.K_s and computer_choice == pygame.K_p)):
+    result = "You win! Computer chose {}".format(
+        key_to_choice[computer_choice])
+  else:
+    result = "Computer wins! Computer chose {}".format(
+        key_to_choice[computer_choice])
+
+  # display the result
+  screen.fill(WHITE)
+  screen.blit(background_image, (0, 0))
+  screen.blit(key_to_img[user_choice], (50, 50))
+  screen.blit(key_to_img[computer_choice], (WIDTH - 150, 50))
+  result_text = font.render(result, True, BLACK)
+  screen.blit(result_text, (WIDTH // 2 - result_text.get_width() // 2, 200))
+  pygame.display.update()
+
+  # wait for a short moment before continuing
+  pygame.time.delay(2000)
+
+
+# function for the main game loop
+def main_game():
+  while True:
+    # user's choice
+    user_choice = image_screen()
+
+    # computer's choice
+    computer_choice = random.choice([pygame.K_r, pygame.K_p, pygame.K_s])
+
+    # evaluate choices and determine winner
+    evaluate_choice(user_choice, computer_choice)
+
+
+# check if this script is being run as the main program
+if __name__ == "__main__":
+  main_game()
